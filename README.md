@@ -1,26 +1,22 @@
-# Mouse-Screen
+# focuscreen
+Snap screen by focusing on mouse and keyboard events.
 
-Python script to track mouse and screen-shot nearby area.
+![](https://img.shields.io/pypi/v/focuscreen?label=focuscreen&color=blue&cacheSeconds=60)
 
-## Setup
-
-Generate `requirements.txt`:
-
-```bash
-pipreqs . --force --mode no-pin --encoding=utf-8
-# remove the line with `opencv-python`
+## Install
+```sh
+pip install --upgrade focuscreen
 ```
 
-Install dependencies:
+In windows, you might need to run following commands to make opencv support GUI:
 
 ```bash
-pip install -r requirements.txt
-```
-
-For windows, to make opencv support GUI:
-
-```bash
-pip uninstall opencv-python
 pip uninstall opencv-python-headless
+pip uninstall opencv-python
 pip install opencv-python
+```
+
+## Usage
+```sh
+python -m focuscreen.app
 ```

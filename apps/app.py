@@ -5,6 +5,16 @@ from mss import mss
 
 class MainApp:
     def __init__(self):
+        self.window_name = "Mouse-Screen"
+        self.window_width = 1280
+        self.window_height = 720
+        self.setup_window()
+
+    def setup_window(self):
+        cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(self.window_name, self.window_width, self.window_height)
+
+    def detect_mouse_position(self):
         pass
 
     def run(self):
@@ -12,9 +22,8 @@ class MainApp:
         with mss() as sct:
             while True:
                 frame = sct.grab(sct.monitors[1])
-                frame_np = np.array(frame)
-                frame_img = cv2.cvtColor(frame_np, cv2.COLOR_BGR2RGB)
-                cv2.imshow("frame", frame_img)
+                frame_img = np.array(frame)
+                cv2.imshow(self.window_name, frame_img)
 
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     cv2.destroyAllWindows()

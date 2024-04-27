@@ -6,9 +6,9 @@ from pynput import mouse
 from tclogger import logger
 
 
-class MainApp:
+class FocuScreenApp:
     def __init__(self):
-        self.window_name = "Mouse-Screen"
+        self.window_name = "FocuScreen"
         self.ratio = 1.5
         self.window_width = int(1920 / self.ratio)
         self.window_height = int(1080 / self.ratio)
@@ -56,8 +56,8 @@ class MainApp:
                 combined_monitor["top"] + combined_monitor["height"]
             )
 
-    def calc_mouse_region(self):
-        """calculate the region of the screen to capture based on the mouse position"""
+    def calc_focus_region(self):
+        """calculate the region of the screen to capture based on focus"""
         self.region_x1 = min(
             max(
                 self.mouse_x - self.window_width // 2,
@@ -87,7 +87,7 @@ class MainApp:
             with mouse.Listener(on_move=self.on_mouse_move) as listener:
                 while True:
                     self.detect_active_monitor()
-                    self.calc_mouse_region()
+                    self.calc_focus_region()
                     frame = sct.grab(self.mouse_region)
                     frame_np = np.array(frame)
                     cv2.imshow(self.window_name, frame_np)
@@ -98,7 +98,7 @@ class MainApp:
 
 
 if __name__ == "__main__":
-    app = MainApp()
+    app = FocuScreenApp()
     app.run()
 
-    # python -m apps.app
+    # python -m focuscreen.app

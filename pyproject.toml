@@ -1,0 +1,19 @@
+[project]
+name = "focuscreen"
+version = "0.7.1"
+authors = [
+    { name="Hansimov" },
+]
+description = "Snap screen by focusing on mouse and keyboard events"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [ "mss", "numpy", "opencv-python", "Pillow", "pynput", "tclogger" ]
+
+[project.urls]
+Homepage = "https://github.com/Hansimov/focuscreen"
+Issues = "https://github.com/Hansimov/focuscreen/issues"

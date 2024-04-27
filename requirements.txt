@@ -1,3 +1,5 @@
 mss
 numpy
 Pillow
+pynput
+tclogger

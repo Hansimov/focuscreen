@@ -14,8 +14,15 @@ class FocuScreenApp:
         self.window_height = int(1080 / self.ratio)
         self.mouse_x, self.mouse_y = 0, 0
         self.focus_x, self.focus_y = 0, 0
-        self.tolerance_width = min(self.window_width // 2, 400)
+        self.tolerance_width = min(self.window_width // 2, 600)
         self.tolerance_height = min(self.window_height // 2, 300)
+        self.is_moving_x = False
+        self.is_moving_y = False
+        self.MOVING_X_STEPS = 30
+        self.MOVING_Y_STEPS = 30
+        self.moving_x_step = 0
+        self.moving_y_step = 0
+        self.move_start_x, self.move_start_y = 0, 0
         self.get_monitor_bounds()
         self.setup_window()
 
@@ -59,15 +66,42 @@ class FocuScreenApp:
                 combined_monitor["top"] + combined_monitor["height"]
             )
 
-    def interpolate(self, a, b, t=0.1):
-        return int(a * (1 - t) + b * t)
+    def interpolate(self, a, b, t):
+        return int(a + (b - a) * t)
 
     def calc_focus_center(self):
         """calculate center of focus region based on current and previous mouse position"""
-        if abs(self.mouse_x - self.focus_x) > self.tolerance_width:
-            self.focus_x = self.interpolate(self.focus_x, self.mouse_x)
-        if abs(self.mouse_y - self.focus_y) > self.tolerance_height:
-            self.focus_y = self.interpolate(self.focus_y, self.mouse_y)
+        if self.is_moving_x:
+            self.moving_x_step += 1
+            if self.moving_x_step > self.MOVING_X_STEPS:
+                self.is_moving_x = False
+                self.moving_x_step = 0
+            else:
+                self.focus_x = self.interpolate(
+                    self.move_start_x,
+                    self.mouse_x,
+                    self.moving_x_step / self.MOVING_X_STEPS,
+                )
+        else:
+            if abs(self.mouse_x - self.move_start_x) > self.tolerance_width:
+                self.move_start_x = self.mouse_x
+                self.is_moving_x = True
+
+        if self.is_moving_y:
+            self.moving_y_step += 1
+            if self.moving_y_step > self.MOVING_Y_STEPS:
+                self.is_moving_y = False
+                self.moving_y_step = 0
+            else:
+                self.focus_y = self.interpolate(
+                    self.move_start_y,
+                    self.mouse_y,
+                    self.moving_y_step / self.MOVING_Y_STEPS,
+                )
+        else:
+            if abs(self.mouse_y - self.move_start_y) > self.tolerance_height:
+                self.move_start_y = self.mouse_y
+                self.is_moving_y = True
 
     def calc_focus_region(self):
         """calculate focus region to capture"""

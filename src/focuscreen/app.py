@@ -5,6 +5,8 @@ from mss import mss
 from pynput import mouse
 from tclogger import logger
 
+from .focus_region_updater import FocusRegionUpdater
+
 
 class FocuScreenApp:
     def __init__(self):
@@ -13,16 +15,7 @@ class FocuScreenApp:
         self.window_width = int(1920 / self.ratio)
         self.window_height = int(1080 / self.ratio)
         self.mouse_x, self.mouse_y = 0, 0
-        self.focus_x, self.focus_y = 0, 0
-        self.tolerance_width = min(self.window_width // 2, 600)
-        self.tolerance_height = min(self.window_height // 2, 300)
-        self.is_moving_x = False
-        self.is_moving_y = False
-        self.MOVING_X_STEPS = 30
-        self.MOVING_Y_STEPS = 30
-        self.moving_x_step = 0
-        self.moving_y_step = 0
-        self.move_start_x, self.move_start_y = 0, 0
+        self.focus_region_updater = FocusRegionUpdater()
         self.get_monitor_bounds()
         self.setup_window()
 
@@ -66,46 +59,11 @@ class FocuScreenApp:
                 combined_monitor["top"] + combined_monitor["height"]
             )
 
-    def interpolate(self, a, b, t):
-        return int(a + (b - a) * t)
-
-    def calc_focus_center(self):
-        """calculate center of focus region based on current and previous mouse position"""
-        if self.is_moving_x:
-            self.moving_x_step += 1
-            if self.moving_x_step > self.MOVING_X_STEPS:
-                self.is_moving_x = False
-                self.moving_x_step = 0
-            else:
-                self.focus_x = self.interpolate(
-                    self.move_start_x,
-                    self.mouse_x,
-                    self.moving_x_step / self.MOVING_X_STEPS,
-                )
-        else:
-            if abs(self.mouse_x - self.move_start_x) > self.tolerance_width:
-                self.move_start_x = self.mouse_x
-                self.is_moving_x = True
-
-        if self.is_moving_y:
-            self.moving_y_step += 1
-            if self.moving_y_step > self.MOVING_Y_STEPS:
-                self.is_moving_y = False
-                self.moving_y_step = 0
-            else:
-                self.focus_y = self.interpolate(
-                    self.move_start_y,
-                    self.mouse_y,
-                    self.moving_y_step / self.MOVING_Y_STEPS,
-                )
-        else:
-            if abs(self.mouse_y - self.move_start_y) > self.tolerance_height:
-                self.move_start_y = self.mouse_y
-                self.is_moving_y = True
-
     def calc_focus_region(self):
         """calculate focus region to capture"""
-        self.calc_focus_center()
+        self.focus_x, self.focus_y = self.focus_region_updater.calc_focus_center(
+            self.mouse_x, self.mouse_y
+        )
         self.region_x1 = min(
             max(
                 self.focus_x - self.window_width // 2,

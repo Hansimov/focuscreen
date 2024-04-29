@@ -1,4 +1,4 @@
-# focuscreen
+# FocuScreen
 Snap screen by focusing on mouse and keyboard events.
 
 ![](https://img.shields.io/pypi/v/focuscreen?label=focuscreen&color=blue&cacheSeconds=60)

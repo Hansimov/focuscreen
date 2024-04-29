@@ -9,10 +9,13 @@ from tclogger import logger
 class FocuScreenApp:
     def __init__(self):
         self.window_name = "FocuScreen"
-        self.ratio = 1.5
+        self.ratio = 2
         self.window_width = int(1920 / self.ratio)
         self.window_height = int(1080 / self.ratio)
         self.mouse_x, self.mouse_y = 0, 0
+        self.focus_x, self.focus_y = 0, 0
+        self.tolerance_width = min(self.window_width // 2, 400)
+        self.tolerance_height = min(self.window_height // 2, 300)
         self.get_monitor_bounds()
         self.setup_window()
 
@@ -56,18 +59,29 @@ class FocuScreenApp:
                 combined_monitor["top"] + combined_monitor["height"]
             )
 
+    def interpolate(self, a, b, t=0.1):
+        return int(a * (1 - t) + b * t)
+
+    def calc_focus_center(self):
+        """calculate center of focus region based on current and previous mouse position"""
+        if abs(self.mouse_x - self.focus_x) > self.tolerance_width:
+            self.focus_x = self.interpolate(self.focus_x, self.mouse_x)
+        if abs(self.mouse_y - self.focus_y) > self.tolerance_height:
+            self.focus_y = self.interpolate(self.focus_y, self.mouse_y)
+
     def calc_focus_region(self):
-        """calculate the region of the screen to capture based on focus"""
+        """calculate focus region to capture"""
+        self.calc_focus_center()
         self.region_x1 = min(
             max(
-                self.mouse_x - self.window_width // 2,
+                self.focus_x - self.window_width // 2,
                 self.monitor_left_bound,
             ),
             self.monitor_right_bound - self.window_width,
         )
         self.region_y1 = min(
             max(
-                self.mouse_y - self.window_height // 2,
+                self.focus_y - self.window_height // 2,
                 self.monitor_top_bound,
             ),
             self.monitor_bottom_bound - self.window_height,

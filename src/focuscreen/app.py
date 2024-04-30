@@ -6,6 +6,7 @@ from pynput import mouse
 from tclogger import logger
 
 from .focus_region_updater import FocusRegionUpdater
+from .cursor_renderer import CursorRenderer
 
 
 class FocuScreenApp:
@@ -16,6 +17,7 @@ class FocuScreenApp:
         self.window_height = int(1080 / self.ratio)
         self.mouse_x, self.mouse_y = 0, 0
         self.focus_region_updater = FocusRegionUpdater()
+        self.cursor_renderer = CursorRenderer()
         self.get_monitor_bounds()
         self.setup_window()
 
@@ -86,6 +88,11 @@ class FocuScreenApp:
             "height": self.window_height,
         }
 
+    def render_cursor_and_key_strokes(self, frame):
+        self.cursor_renderer.render(
+            frame, self.mouse_x, self.mouse_y, self.region_x1, self.region_y1
+        )
+
     def run(self):
         """use mss to capture screen, and use cv2 to real-time display each frame"""
         with mss() as sct:
@@ -96,6 +103,7 @@ class FocuScreenApp:
                     self.calc_focus_region()
                     frame = sct.grab(self.mouse_region)
                     frame_np = np.array(frame)
+                    self.render_cursor_and_key_strokes(frame_np)
                     cv2.imshow(self.window_name, frame_np)
 
                     if cv2.waitKey(1) & 0xFF == ord("q"):

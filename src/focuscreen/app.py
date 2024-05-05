@@ -28,6 +28,10 @@ class FocuScreenApp:
     def on_mouse_move(self, x, y):
         self.mouse_x, self.mouse_y = x, y
 
+    def on_mouse_click(self, x, y, button, pressed):
+        if pressed:
+            self.cursor_renderer.on_click()
+
     def detect_active_monitor(self):
         """detect active monitor, where the mouse is currently located"""
         self.active_monitor = None
@@ -97,7 +101,9 @@ class FocuScreenApp:
         """use mss to capture screen, and use cv2 to real-time display each frame"""
         with mss() as sct:
             self.monitors = sct.monitors
-            with mouse.Listener(on_move=self.on_mouse_move) as listener:
+            with mouse.Listener(
+                on_move=self.on_mouse_move, on_click=self.on_mouse_click
+            ) as listener:
                 while True:
                     self.detect_active_monitor()
                     self.calc_focus_region()
